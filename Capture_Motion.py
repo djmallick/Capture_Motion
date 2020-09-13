@@ -1,3 +1,5 @@
+# You should have the following libraries. Install PIL, bokeh, tkinter, cv2, pandas if you haven't already installed
+
 import PIL
 import pandas
 from tkinter import*
@@ -14,11 +16,11 @@ class Window(object):
     def __init__(self,window):
 
         self.window = window
-        self.video = cv2.VideoCapture(0)
-        self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+        self.video = cv2.VideoCapture(0)                   # set is 1 for external camera           
+        self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 800)      
         self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
 
-        window.title("Motion detector")
+        window.title("Motion detector")                            # simple tkinter window design
         window.geometry("1600x700+0+0")
 
         Tops = Frame(window,bg="white",width = 1600,height=50,relief=SUNKEN)
@@ -71,13 +73,48 @@ class Window(object):
 
         self.flag = 0
         self.flag1 = 0
-        self.df = pandas.DataFrame(columns = ["Start", "End"])
+        
+        self.df = pandas.DataFrame(columns = ["Start", "End"])             # pandas dataframe for csv file which will store datetime information of motion
         self.time = []
         self.a = [0,0]
+        
+        
+    def snap(self):                                          # It will capture static frame. Entire frame in motion session will be compared with this picture
+        self.b5.grid_forget()
+        self.b11.grid_forget()
+        self.b1.grid_forget()
+        self.b2.grid_forget()
+        self.b4.grid(row=5, column=0)
+        
+        check, frame = self.video.read()
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.GaussianBlur(gray, (21,21),0)
+        self.list1.delete(0,END)
+        img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        im = PIL.Image.fromarray(img)
+        imgtk = ImageTk.PhotoImage(image=im)
+        self.l9.imgtk = imgtk
+        self.l9.configure(image=imgtk)
+        if self.flag1 == 0:
+            self.l9.after(10,self.snap)
+        else:
+            self.first_frame = gray
+            self.flag1 = 0         
+            self.list1.insert(END,"    Captured Successfully!!")
+            self.b2.grid(row=6, column=0)
+            self.b11.grid(row=4, column=0)
+            self.b4.grid_forget()
+            
+            
+    def cap(self):                                   # when "Capture" button will be pressed, this function will be called
+        self.flag1 = 1
+                
+        
+        
     
-    def start(self):
+    def start(self):                                 # Startng motion session
         try:
-            scl = self.scale.get()
+            scl = self.scale.get()                                     # it will take the value of sensitivity scale as user input
             self.scale.grid(row = 10, column = 0)
             self.b11.grid_forget()
             self.b4.grid_forget()
@@ -166,32 +203,6 @@ class Window(object):
             self.list1.delete(0,END)
             self.list1.insert(END," Please Capture static frame")
 
-    def snap(self):
-        self.b5.grid_forget()
-        self.b11.grid_forget()
-        self.b1.grid_forget()
-        self.b2.grid_forget()
-        self.b4.grid(row=5, column=0)
-        check, frame = self.video.read()
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        gray = cv2.GaussianBlur(gray, (21,21),0)
-        self.list1.delete(0,END)
-        img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-        im = PIL.Image.fromarray(img)
-        imgtk = ImageTk.PhotoImage(image=im)
-        self.l9.imgtk = imgtk
-        self.l9.configure(image=imgtk)
-        if self.flag1 == 0:
-            self.l9.after(10,self.snap)
-        else:
-            self.first_frame = gray
-            self.flag1 = 0         
-            self.list1.insert(END,"    Captured Successfully!!")
-            self.b2.grid(row=6, column=0)
-            self.b11.grid(row=4, column=0)
-            self.b4.grid_forget()
-
-
 
 
     def save(self):
@@ -202,8 +213,6 @@ class Window(object):
     def stop(self):
         self.flag = 1
 
-    def cap(self):
-        self.flag1 = 1
 
     def open(self):
         try:
