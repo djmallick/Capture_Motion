@@ -1,4 +1,4 @@
-# You should have the following libraries. Install PIL, bokeh, tkinter, cv2, pandas if you haven't already installed
+# You should have the following libraries. Install PIL, bokeh, tkinter, cv2, pandas... Ignore if already installed
 
 import PIL
 import pandas
